@@ -14,7 +14,7 @@
     "href": "01-Tps.html",
     "title": "降水插值",
     "section": "",
-    "text": "1 + 1",
+    "text": "using CairoMakie\n\nA = rand(10, 10)\nheatmap(A)",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>01-Tps.html</span>"
     ]
@@ -22,11 +22,11 @@
   {
     "objectID": "02-Universal_Kriging.html",
     "href": "02-Universal_Kriging.html",
-    "title": "降水插值",
+    "title": "2  using CairoMakie",
     "section": "",
-    "text": "1 + 1",
+    "text": "using GLMakie\n\nA = rand(10, 10)\nheatmap(A)",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>02-Universal_Kriging.html</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>using CairoMakie</span>"
     ]
   }
 ]
