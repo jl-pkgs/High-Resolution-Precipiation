@@ -12,21 +12,21 @@
   {
     "objectID": "01-Tps.html",
     "href": "01-Tps.html",
-    "title": "降水插值",
+    "title": "1  Thin Plate Splines (Tps)",
     "section": "",
-    "text": "using CairoMakie\n\nA = rand(10, 10)\nheatmap(A)",
+    "text": "using CairoMakie\n\nA = rand(10, 10)\nheatmap(A)\n\n\n┌ Warning: Found `resolution` in the theme when creating a `Scene`. The `resolution` keyword for `Scene`s and `Figure`s has been deprecated. Use `Figure(; size = ...` or `Scene(; size = ...)` instead, which better reflects that this is a unitless size and not a pixel resolution. The key could also come from `set_theme!` calls or related theming functions.\n\n└ @ Makie ~/.julia/packages/Makie/aJUtI/src/scenes.jl:259",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>01-Tps.html</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Thin Plate Splines (Tps)</span>"
     ]
   },
   {
     "objectID": "02-Universal_Kriging.html",
     "href": "02-Universal_Kriging.html",
-    "title": "2  using CairoMakie",
+    "title": "2  Kriging",
     "section": "",
-    "text": "A = rand(10, 10)",
+    "text": "A = rand(10, 10)\n\n10×10 Matrix{Float64}:\n 0.321575   0.105405  0.863265   0.279039   …  0.445781   0.799981  0.672919\n 0.900364   0.554814  0.304903   0.0935008     0.413933   0.671753  0.771831\n 0.991979   0.231845  0.11216    0.528995      0.740843   0.902991  0.127754\n 0.282614   0.191546  0.95151    0.567061      0.0552581  0.782924  0.910243\n 0.694117   0.110624  0.0190879  0.601797      0.916481   0.192881  0.572246\n 0.0844645  0.135585  0.917311   0.0607585  …  0.0256721  0.730188  0.891045\n 0.290426   0.911479  0.137117   0.674786      0.929135   0.083728  0.801829\n 0.437816   0.39826   0.131715   0.229973      0.990183   0.28389   0.376181\n 0.67974    0.418697  0.474776   0.300024      0.522615   0.970337  0.398243\n 0.0045661  0.775693  0.0913822  0.490707      0.585508   0.389969  0.0394828",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>using CairoMakie</span>"
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Kriging</span>"
     ]
   }
 ]
