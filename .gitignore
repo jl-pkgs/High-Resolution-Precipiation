@@ -1,3 +1,6 @@
+Manifest.toml
+*.html
+*.quarto_ipynb
 /.quarto/
 _book
-Manifest.toml
+site_libs

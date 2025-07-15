@@ -1,3 +1,8 @@
+# Thin Plate Splines (Tps)
+
 ```{julia}
-1 + 1
+using CairoMakie
+
+A = rand(10, 10)
+heatmap(A)
 ```

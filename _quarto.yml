@@ -1,6 +1,12 @@
 project:
   type: book
 
+execute:
+  echo: true
+  output: true
+  cache: false
+  freeze: false
+
 book:
   title: "降水插值"
   # cover-image: "images/cover.svg"
