@@ -1,0 +1,90 @@
+```{julia}
+using ThinPlateSplines
+using SpatRasters, Ipaper, DataFrames, RTableTools
+using GLMakie, MakieLayers
+
+function make_rast(; b::bbox=bbox(70, 15, 140, 55), cellsize=0.5)
+  lon, lat = bbox2dims(b; cellsize)
+  nlon, nlat = length(lon), length(lat)
+  rast(zeros(nlon, nlat), b)
+end
+
+function meshgrid(x, y)
+  X = repeat(x, 1, length(y))
+  Y = repeat(y', length(x), 1)
+  X, Y
+end
+```
+
+```{julia}
+d = fread("./prcp_st174_shiyan.csv")
+# indir = "$(@__DIR__)/../../data" |> abspath
+# st = deserialize("$indir/st_met2481")
+# N = nrow(st)
+x = [d.lon d.lat d.alt]
+y = d.prcp
+```
+
+## 案例
+
+- `x1`: [nsite, [lon, lat, alt, NDVI]], Matrix
+- `y`: precipitation
+  + Vector: 1个时刻的降水
+  + Matrix: 所有时刻的降水，[nstie, 24*31]
+
+```{julia}
+# set_seed(1)
+# ntime = 24
+# y = repeat(st.alt, outer=(1, ntime)) # [nsite, ntime], pseudo data
+```
+
+<https://grok.com/chat/a39d0645-87c9-49e8-9148-907de7270123>
+$$
+h(x, y) = a_1 + a_x x + a_y y + \sum_{i=1}^n w_i U(\| (x, y) - (x_i, y_i) \|)
+$$
+
+其中 $ U(r) = r^2 \ln(r) $。目标函数为：
+
+$$
+E_{\text{tps}}(d, c) = \|Y - X d - \Phi c\|^2 + \lambda c^T \Phi c
+$$
+
+## 栅格插值结果
+
+```{julia}
+b = bbox(109.5, 31.5, 112 - 0.5, 33.5)
+ra = make_rast(; b, cellsize=0.01)
+
+lon, lat = st_dims(ra)
+nlon, nlat, _ = size(ra)
+X, Y = meshgrid(lon, lat)
+
+xlims = b.xmin, b.xmax
+ylims = b.ymin, b.ymax
+limits = (xlims, ylims)
+
+λ = 0.01 # 小: 局部细节; 大: 空间上更加平缓
+@time tps = tps_solve(x, y, λ)
+@time R = tps_deform(x, tps)
+
+data = [X[:] Y[:]] # 空间按照
+@time _A = tps_deform(data, tps)
+A = reshape(_A, nlon, nlat)
+ra_out = rast(A, ra)
+
+fig = Figure(; size=(1400, 600))
+ax = Axis(fig[1, 1]; limits)
+sc = scatter!(ax, x[:, 1], x[:, 2], color=y;
+  colormap=amwg256, colorrange=(0, 60))
+Colorbar(fig[1, 2], sc, label="mm/h")  # 颜色条放在右侧
+
+# ax2 = Axis(fig[1, 3]; limits)
+imagesc!(fig[1, 3], lon, lat, A[:, :, 1];
+  colorrange=(-10, 60),
+  colors=amwg256,
+  title="λ=$λ",
+  # limits,
+  force_show_legend=true, col_rev=false)
+fig
+# save("Figure.png", fig)
+```

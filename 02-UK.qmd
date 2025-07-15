@@ -1,0 +1,103 @@
+<https:s//grok.com/chat/778d6b46-52ac-4fc3-8e49-b442940b4457s>
+
+<>
+
+```{julia}
+using GeoStats
+using DataFrames  # 用于数据处理
+using GeoStatsFunctions
+using GeoStatsFunctions: fit
+using GLMakie
+using SpatRasters
+```
+
+```{julia}
+using RTableTools
+d = fread("./prcp_st174_shiyan.csv")
+data = georef(d[:, [1, 2, 4]], (:lon, :lat))  # 指定坐标列
+```
+
+```{julia}
+b = bbox(109.5, 31.5, 112 - 0.5, 33.5)
+cellsize = 0.05
+
+domain = CartesianGrid(
+  sf_point(b.xmin, b.ymin), sf_point(b.xmax, b.ymax), 
+  (1, 1) .* cellsize)
+
+GeodeticLatLon{WGS84Latest}
+nelements(grid)
+p = centroid(domain, 1)
+empγ = EmpiricalVariogram(data, :prcp, maxlag=200_000.0)  # maxlag 根据数据范围
+funplot(empγ)
+
+#  Gaussian, sill=方差, range=相关距离, nugget=噪声
+γ = GeoStatsFunctions.fit(GaussianVariogram, empγ) # `maxlag` in the unit of m
+x = 0.01:1_000:200_000
+plot(x, γ.(x))
+```
+
+- `abscissas`: (横坐标) 表示距离
+- `ordinates`: (纵坐标) 表示该距离上的变异函数值s
+- `counts`: 表示用于计算该距离上变异函数值的点对数量
+
+
+```{julia}
+# 定义 drifts：常数 + 经度 + 纬度 + 高程 + NDVI
+drifts = [
+  p -> 1.0,                          # 常数项 β0
+  p -> coordinates(p)[1],            # 经度 (longitude)
+  p -> coordinates(p)[2],            # 纬度 (latitude)
+  # p -> value(p, :elevation),         # 高程
+  # p -> value(p, :ndvi)               # NDVI
+]
+
+# # Kriging 求解器
+# solver = Kriging(
+#   :Z => (                        # 针对变量 :Z
+#     variogram = γ             # 拟合的变异函数
+#     # drifts=drifts,           # 自定义趋势函数
+#     # maxneighbors=20,         # 局部邻域优化（高性能）
+#     # neighborhood=BallNeighborhood(10.0),  # 邻域半径
+#     # distance=GreatCircleDistance()  # 如果经纬度，改成 GreatCircleDistance(), EuclideanDistance
+#   )
+# )
+
+model = Kriging(GaussianVariogram())
+# model = Kriging(γ)
+Interpolate(grid, model=model)
+data |> Interpolate(grid, model=model)
+```
+
+```{julia}
+# 假设网格是 PointSet 或 Grid，先 georef 添加协变量（示例：随机或从 raster 插值）
+# 这里简化假设网格已有 :elevation, :ndvi（实际需预处理）
+df_grid = DataFrame(  # 示例
+  longitude=[p[1] for p in grid],
+  latitude=[p[2] for p in grid],
+  elevation=rand(0:1000, length(grid)),  # 替换为实际值
+  ndvi=rand(0:1, length(grid))          # 替换为实际值
+)
+
+grid_data = georef(df_grid, (:longitude, :latitude))
+
+```
+
+```{julia}
+data |> Interpolate(domain; model)
+```
+
+```{julia}
+# 问题定义
+problem = EstimationProblem(data, grid_data, :Z)  # 数据有协变量，网格也有
+
+# 求解
+solution = solve(problem, solver)
+
+# 输出：预测均值和方差
+Z_hat = solution[:Z]  # GeoArray 或 DataFrame
+variance = solution[:Z_variance]
+
+# 可视化（可选）
+plot(solution, :Z)  # 热图
+```

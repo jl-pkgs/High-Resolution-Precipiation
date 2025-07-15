@@ -7,9 +7,9 @@ book:
   author: "Dongdong Kong"
   date: today
   chapters:
+    - index.qmd
     - 01-Tps.qmd
     - 02-Universal_Kriging.qmd
-    # - index.qmd
     # - foreword.qmd
     # - preface.qmd
     # - part: "Part I: Foundations"
