@@ -24,7 +24,7 @@
     "href": "02-Universal_Kriging.html",
     "title": "2  using CairoMakie",
     "section": "",
-    "text": "using GLMakie\n\nA = rand(10, 10)\nheatmap(A)",
+    "text": "A = rand(10, 10)",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>using CairoMakie</span>"
     ]
